@@ -5,6 +5,7 @@
  */
 package server;
 
+import battleship.FilaJogadores;
 import battleship.Tabuleiro;
 import util.Mensagem;
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class Server {
     private List<Thread> threads;
     private List<TrataConexao> clientes;
     private Tabuleiro tabuleiro;
+   private FilaJogadores<TrataConexao> fila;
     /*- Criar o servidor de conexões*/
 
     private void criarServerSocket(int porta) throws IOException {
@@ -121,5 +123,13 @@ public class Server {
        return ranking;
     
     }
+    
+    
+     public void addJogadorFila(TrataConexao jogador)
+    {
+        fila.enfilera(jogador);
+        
+    }
+    
 
 }
