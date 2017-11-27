@@ -7,6 +7,7 @@ package server;
 
 import battleship.FilaJogadores;
 import battleship.Tabuleiro;
+import battleship.TiroEnum;
 import util.Mensagem;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,7 +45,7 @@ public class Server {
     private List<Thread> threads;
     private List<TrataConexao> clientes;
     private Tabuleiro tabuleiro;
-   private FilaJogadores<TrataConexao> fila;
+    private FilaJogadores<TrataConexao> fila;
     /*- Criar o servidor de conexões*/
 
     private void criarServerSocket(int porta) throws IOException {
@@ -53,6 +54,7 @@ public class Server {
         threads = new ArrayList<>();
         clientes = new ArrayList<>();
         tabuleiro = new Tabuleiro();
+        fila = new FilaJogadores<>();
     }
     
 
@@ -125,10 +127,48 @@ public class Server {
     }
     
     
-     public void addJogadorFila(TrataConexao jogador)
+     public synchronized void  addJogadorFila(TrataConexao jogador)
     {
         fila.enfilera(jogador);
         
+    }
+
+    void sorteiaProximo() {
+        fila.proximo();
+        //pega o proximo da fila
+        //remove da fila
+        //envia a ordem de vez de jogar
+        
+    }
+
+    TiroEnum fazJogada(Integer x, Integer y) throws Exception {
+        
+        TiroEnum tiro = tabuleiro.atirar(x, y);
+        System.out.println("Resultado do tiro: " + tiro);
+        System.out.println(tabuleiro.desenhaTabuleiro());
+        return tiro;
+    }
+
+    void enviaStatus() {
+       //cada trataConexao 
+       //envia o tabuleiro
+       //fim do jogo
+       //ultima jogada
+    
+    }
+
+    boolean eprimeiro(TrataConexao jogador) {
+        
+        if (fila.proximo() == jogador)
+            return true;
+        else
+            return false; 
+        
+    }
+
+    synchronized void removerFila() throws Exception {
+        fila.desenfilera();
+    
     }
     
 

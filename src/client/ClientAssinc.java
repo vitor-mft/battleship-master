@@ -1,16 +1,12 @@
 package client;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.NodeTest;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
-import javax.swing.text.StyledEditorKit;
 import util.Mensagem;
 import util.Status;
 
@@ -52,14 +48,11 @@ public class ClientAssinc {
                         if (m.getOperacao().equals("VEZDEJOGAR") && m.getStatus() == Status.OK) {
                             vezDeJogar = true;
                         }
-                        
-                          if (m.getOperacao().equals("SAIRREPLY") && m.getStatus() == Status.OK) {
+
+                        if (m.getOperacao().equals("SAIRREPLY") && m.getStatus() == Status.OK) {
                             ligado = false;
                         }
-                        
-                        
-                        
-                        
+
                     } catch (IOException ex) {
                         System.out.println("Erro ao receber mensagem do servidor: " + ex.getMessage());
                         ligado = false;
@@ -72,22 +65,21 @@ public class ClientAssinc {
         thread.start();
     }
 
-    public void controlaJogo() throws IOException {
+    public void controlaJogo() throws IOException, ClassNotFoundException {
 
         Mensagem m = new Mensagem("ENTRARNOJOGO");
         m.setParam("nome", "VITOR");
         output.writeObject(m);
-
+        
+        m = (Mensagem) input.readObject();
+        System.out.println("TESTE"+ m);
         if (m.getOperacao().equals("ENTRARNOJOGOREPLY") && m.getStatus() == Status.OK) {
             ligado = true;
             disparaThread();
-            
+
         }
-        
         while (ligado) {
 
-            //verifica se é a vez de jogar;
-            //quem faz isso vai ser o servidor
             Scanner scanner = new Scanner(System.in);
             System.out.println("______MENU_______\n"
                     + " 1 - ATIRAR: \n"
@@ -99,14 +91,23 @@ public class ClientAssinc {
             switch (op) {
                 case 1:
                     if (vezDeJogar) {
-                        System.out.println("DIGITE O VALOR DE X");
+                        System.out.println("DIGITE O VALOR DE X (0 a 9) ");
                         int x = scanner.nextInt();
-                        System.out.println("DIGITE O VALOR DE Y");
+                        System.out.println("DIGITE O VALOR DE Y (0 a 9) ");
                         int y = scanner.nextInt();
-                        
-                     
-                        
-                        
+
+                        m = new Mensagem("JOGADA");
+                        m.setParam("x", x);
+                        m.setParam("y", y);
+                        output.writeObject(m);
+
+                        //tratar a resposta
+                       
+                        if (m.getOperacao().equals("JOGADAREPLY") && m.getStatus() == Status.OK) {
+                           //
+
+                        }
+
                     } else {
                         System.out.println("Não é sua vez de jogar!");
                     }
@@ -115,16 +116,12 @@ public class ClientAssinc {
                     m = new Mensagem("RANKING");
                     output.writeObject(m);
                     break;
-                    
-                    
+                case 3:
+                    m = new Mensagem("SAIR");
+                    output.writeObject(m);
+                    break;
+
             }
-
-            m = new Mensagem("SAIR");
-            m.setParam("nome", "Vitor");
-            m.setParam("sobrenome", "Teixeira");
-
-            //enviando a mensagem
-            output.writeObject(m);
 
         }
     }
@@ -133,7 +130,7 @@ public class ClientAssinc {
         ligado = false;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
         ClientAssinc cliente = new ClientAssinc();
 
         try {
