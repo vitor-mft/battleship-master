@@ -141,7 +141,7 @@ public class Server {
         
     }
 
-    TiroEnum fazJogada(Integer x, Integer y) throws Exception {
+    TiroEnum fazJogada(int x, int y) throws Exception {
         
         TiroEnum tiro = tabuleiro.atirar(x, y);
         System.out.println("Resultado do tiro: " + tiro);
@@ -149,7 +149,10 @@ public class Server {
         return tiro;
     }
 
-    void enviaStatus() {
+    public String enviaStatus() {
+                
+      String DesenhoTabuleiro = tabuleiro.desenhaTabuleiro();
+      return DesenhoTabuleiro;
        //cada trataConexao 
        //envia o tabuleiro
        //fim do jogo

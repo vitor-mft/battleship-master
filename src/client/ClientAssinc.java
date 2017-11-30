@@ -45,7 +45,7 @@ public class ClientAssinc {
                         System.out.println("Mensagem recebida:\n" + m);
 
                         //deve-se tratar a mensagem chegada aqui...
-                        if (m.getOperacao().equals("VEZDEJOGAR") && m.getStatus() == Status.OK) {
+                        if (m.getOperacao().equals("VEZDEJOGAR")) {
                             vezDeJogar = true;
                         }
 
@@ -104,8 +104,7 @@ public class ClientAssinc {
                         //tratar a resposta
                        
                         if (m.getOperacao().equals("JOGADAREPLY") && m.getStatus() == Status.OK) {
-                           //
-
+                           
                         }
 
                     } else {
@@ -115,6 +114,7 @@ public class ClientAssinc {
                 case 2:
                     m = new Mensagem("RANKING");
                     output.writeObject(m);
+                    output.flush();
                     break;
                 case 3:
                     m = new Mensagem("SAIR");

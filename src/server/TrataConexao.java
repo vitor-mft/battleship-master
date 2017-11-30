@@ -26,6 +26,7 @@ public class TrataConexao implements Runnable {
     private String nome;
     private Integer pontuação;
     Boolean primeiro = false;
+    String DesenhoTabuleiro = "";
 
     @Override
     public void run() {
@@ -83,8 +84,7 @@ public class TrataConexao implements Runnable {
                             case "ENTRARNOJOGO":
                                 //pega o nome do cliente
                                 nome = (String) m.getParam("nome");
-                               reply.setStatus(Status.OK);
-
+                                reply.setStatus(Status.OK);
                                 //entrar na fila
                                 server.addJogadorFila(this);
                                 //testa se o 1º
@@ -109,6 +109,7 @@ public class TrataConexao implements Runnable {
                         break;
 
                     case JOGANDO:
+                         reply.setParam("status", "\n"+DesenhoTabuleiro);
                         switch (operacao) {
                             case "RANKING":
                                 try {
@@ -120,6 +121,7 @@ public class TrataConexao implements Runnable {
                                 }
                                 break;
                             case "STATUS":
+                                System.out.println("RANKING");
                                 //envia o Tabuleiro
                                 //envia o status do jogo se FIM ou não
                                 // Informa a ultima jogada com (x,y)
@@ -138,32 +140,45 @@ public class TrataConexao implements Runnable {
                     case VEZDEJOGAR:
                         switch (operacao) {
                             case "JOGADA":
-
-                                Integer x = (Integer) m.getParam("X");
-                                Integer y = (Integer) m.getParam("Y");
+                                int x = (int) m.getParam("x");
+                                int y = (int) m.getParam("y");
                                 //pegar as coordenadas da msg
 
                                 TiroEnum res = server.fazJogada(x, y);
 
                                 if (res == TiroEnum.AGUA) {
                                     //perde vez de jogar
+                                   
                                     //sorteia o proximo
 
                                     server.addJogadorFila(this);
                                     server.sorteiaProximo();
 
-                                    //ponto -1
+                                   this.pontuação -= 1;
                                 } else if (res == TiroEnum.FOGO) {
-                                    //ponto +1
+                                    this.pontuação += 1 ;
                                 } else if (res == TiroEnum.DESCOBERTA) {
-                                    //ponto +2
+                                    this.pontuação += 2;
+                                    
                                 } else if (res == TiroEnum.AFUNDAR) {
-                                    //ponto +2 
+                                    this.pontuação =+ 2;
                                 }
-                                reply.setParam("resultado", res);
+                                reply.setParam("\n\n\n Resultado", res);
                                 //avisa todo mundo o STATUS (Tab,FINAL ou NAO, Ultima JOGADA)
-                                server.enviaStatus();
+                               
+                               reply.setParam("status", "\n"+DesenhoTabuleiro);
+                               //System.out.println(DesenhoTabuleiro); 
+                                
+                                break;
+                            case "RANKING":
+                                
+                                try {
+                                    String ranking = server.getRanking();
+                                    reply.setParam("ranking", ranking);
+                                    reply.setStatus(Status.OK);
 
+                                } catch (Exception e) {
+                                }
                                 break;
                         }
 
@@ -185,7 +200,7 @@ public class TrataConexao implements Runnable {
                     server.enviaStatus();
                     primeiro = false;
                 }
-                
+
             }
             //4.2 - Fechar streams de entrada e saída
             input.close();
@@ -221,6 +236,8 @@ public class TrataConexao implements Runnable {
     public TrataConexao(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
+        //inicializa a pontuação
+        this.pontuação = 0;
     }
 
 }
