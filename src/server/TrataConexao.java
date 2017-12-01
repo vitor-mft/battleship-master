@@ -27,6 +27,8 @@ public class TrataConexao implements Runnable {
     private Integer pontuação;
     Boolean primeiro = false;
     String DesenhoTabuleiro = "";
+    private Estados estado;
+    private ObjectOutputStream output;
 
     @Override
     public void run() {
@@ -53,7 +55,7 @@ public class TrataConexao implements Runnable {
         try {
             /* 3 - Criar streams de entrada e saída;*/
 
-            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+            output = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
             /*protocolo
@@ -69,7 +71,7 @@ public class TrataConexao implements Runnable {
  /*4 - Tratar a conversação entre cliente e 
              servidor (tratar protocolo);*/
             System.out.println("Tratando...");
-            Estados estado = Estados.CONECTADO;
+            estado = Estados.CONECTADO;
             while (estado != Estados.SAIR) {
                 server.avisa();
                 Mensagem m = (Mensagem) input.readObject();
@@ -109,7 +111,6 @@ public class TrataConexao implements Runnable {
                         break;
 
                     case JOGANDO:
-                         reply.setParam("status", "\n"+DesenhoTabuleiro);
                         switch (operacao) {
                             case "RANKING":
                                 try {
@@ -144,34 +145,33 @@ public class TrataConexao implements Runnable {
                                 int y = (int) m.getParam("y");
                                 //pegar as coordenadas da msg
 
-                                TiroEnum res = server.fazJogada(x, y);
+                                TiroEnum res = server.fazJogada(x, y,this);
 
                                 if (res == TiroEnum.AGUA) {
                                     //perde vez de jogar
-                                   
+                                    server.removerFila();
                                     //sorteia o proximo
-
                                     server.addJogadorFila(this);
                                     server.sorteiaProximo();
 
-                                   this.pontuação -= 1;
+                                    this.pontuação -= 1;
                                 } else if (res == TiroEnum.FOGO) {
-                                    this.pontuação += 1 ;
+                                    this.pontuação += 1;
                                 } else if (res == TiroEnum.DESCOBERTA) {
                                     this.pontuação += 2;
-                                    
+
                                 } else if (res == TiroEnum.AFUNDAR) {
-                                    this.pontuação =+ 2;
+                                    this.pontuação = +2;
                                 }
                                 reply.setParam("\n\n\n Resultado", res);
                                 //avisa todo mundo o STATUS (Tab,FINAL ou NAO, Ultima JOGADA)
-                               
-                               reply.setParam("status", "\n"+DesenhoTabuleiro);
-                               //System.out.println(DesenhoTabuleiro); 
-                                
+                                DesenhoTabuleiro = server.enviaStatus();
+                                reply.setParam("status", "\n" + DesenhoTabuleiro);
+                                //System.out.println(DesenhoTabuleiro); 
+
                                 break;
                             case "RANKING":
-                                
+
                                 try {
                                     String ranking = server.getRanking();
                                     reply.setParam("ranking", ranking);
@@ -196,7 +196,7 @@ public class TrataConexao implements Runnable {
                     Mensagem avisa = new Mensagem("VEZDEJOGAR");
                     output.writeObject(avisa);
                     output.flush();//cambio do rádio amador
-                    server.removerFila();
+                   // server.removerFila();
                     server.enviaStatus();
                     primeiro = false;
                 }
@@ -216,6 +216,13 @@ public class TrataConexao implements Runnable {
             fechaSocket(socket);
         }
 
+    }
+
+    public void proximoJogador() {
+        estado = Estados.VEZDEJOGAR;
+        Mensagem avisa = new Mensagem("VEZDEJOGAR"); 
+            enviaMensagem(avisa);
+   
     }
 
     public String getNome() {
@@ -239,5 +246,20 @@ public class TrataConexao implements Runnable {
         //inicializa a pontuação
         this.pontuação = 0;
     }
+    public void enviaMensagem (Mensagem msg)
+    {
+   
+        try {
+            //output = new ObjectOutputStream(socket.getOutputStream());
+            output.writeObject(msg);
+            output.flush();//cambio do rádio amador
+        } catch (IOException ex) {
+            Logger.getLogger(TrataConexao.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+           
+        }
+   
+    }
+   
 
 }

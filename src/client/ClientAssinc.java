@@ -101,8 +101,7 @@ public class ClientAssinc {
                         m.setParam("y", y);
                         output.writeObject(m);
 
-                        //tratar a resposta
-                       
+                        //tratar a resposta                      
                         if (m.getOperacao().equals("JOGADAREPLY") && m.getStatus() == Status.OK) {
                            
                         }

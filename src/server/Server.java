@@ -133,19 +133,31 @@ public class Server {
         
     }
 
-    void sorteiaProximo() {
-        fila.proximo();
+    void sorteiaProximo() throws Exception {
         //pega o proximo da fila
-        //remove da fila
+        TrataConexao proximo = fila.proximo();
         //envia a ordem de vez de jogar
+        proximo.proximoJogador();
         
     }
 
-    TiroEnum fazJogada(int x, int y) throws Exception {
+    TiroEnum fazJogada(int x, int y,TrataConexao quemJogou) throws Exception {
         
         TiroEnum tiro = tabuleiro.atirar(x, y);
         System.out.println("Resultado do tiro: " + tiro);
         System.out.println(tabuleiro.desenhaTabuleiro());
+        //parte de mandar msg pra todo
+        Mensagem m = new Mensagem("STATUS");
+        m.setParam("tabuleiro", tabuleiro.desenhaTabuleiro());
+        m.setParam("fimDoJogo", tabuleiro.fimDeJogo());
+        m.setParam("mensagem","O jogador: "+ quemJogou.getNome() + " Jogou: X: " +x+ " Y: "+ y + " Resultado: " +tiro );
+        for (TrataConexao cliente : clientes) {
+            if (cliente.getEstado )
+            
+        }
+        
+        
+        
         return tiro;
     }
 
