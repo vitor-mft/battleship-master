@@ -26,9 +26,12 @@ public class TrataConexao implements Runnable {
     private String nome;
     private Integer pontuação;
     Boolean primeiro = false;
+    Boolean perdeuVez = false;            
     String DesenhoTabuleiro = "";
     private Estados estado;
     private ObjectOutputStream output;
+   
+    
 
     @Override
     public void run() {
@@ -127,10 +130,11 @@ public class TrataConexao implements Runnable {
                                 //envia o status do jogo se FIM ou não
                                 // Informa a ultima jogada com (x,y)
                                 break;
-                            case "SAIR":
+                            case "SAIRDOJOGO":
                                 //DESIGN PATTERN STATE
                                 reply.setStatus(Status.OK);
-                                estado = Estados.SAIR;
+                                server.tirarJogadorFila(this);
+                                estado = Estados.CONECTADO;
                                 break;
                             default:
                                 reply.setStatus(Status.ERROR);
@@ -145,15 +149,19 @@ public class TrataConexao implements Runnable {
                                 int y = (int) m.getParam("y");
                                 //pegar as coordenadas da msg
 
-                                TiroEnum res = server.fazJogada(x, y,this);
+                                TiroEnum res = server.fazJogada(x,y,this);
 
                                 if (res == TiroEnum.AGUA) {
                                     //perde vez de jogar
                                     server.removerFila();
                                     //sorteia o proximo
                                     server.addJogadorFila(this);
-                                    server.sorteiaProximo();
-
+                                    estado = Estados.JOGANDO;
+                                    perdeuVez = true;
+                                    
+                                   
+                                    //para peder a vez
+ 
                                     this.pontuação -= 1;
                                 } else if (res == TiroEnum.FOGO) {
                                     this.pontuação += 1;
@@ -163,10 +171,15 @@ public class TrataConexao implements Runnable {
                                 } else if (res == TiroEnum.AFUNDAR) {
                                     this.pontuação = +2;
                                 }
-                                reply.setParam("\n\n\n Resultado", res);
+                                
+                              
+                                
+                                reply.setParam("resultado", res);
+                                
+                                
                                 //avisa todo mundo o STATUS (Tab,FINAL ou NAO, Ultima JOGADA)
-                                DesenhoTabuleiro = server.enviaStatus();
-                                reply.setParam("status", "\n" + DesenhoTabuleiro);
+                              //  DesenhoTabuleiro = server.enviaStatus();
+                               // reply.setParam("status", "\n" + DesenhoTabuleiro);
                                 //System.out.println(DesenhoTabuleiro); 
 
                                 break;
@@ -197,8 +210,13 @@ public class TrataConexao implements Runnable {
                     output.writeObject(avisa);
                     output.flush();//cambio do rádio amador
                    // server.removerFila();
-                    server.enviaStatus();
+                   // server.enviaStatus();
                     primeiro = false;
+                }
+                if (perdeuVez)
+                {
+                    server.sorteiaProximo();
+                    perdeuVez = false; 
                 }
 
             }
@@ -209,6 +227,9 @@ public class TrataConexao implements Runnable {
             //tratamento de falhas
             System.out.println("Problema no tratamento da conexão com o cliente: " + socket.getInetAddress());
             System.out.println("Erro: " + e.getMessage());
+            
+            
+            
             throw e;
         } finally {
             //final do tratamento do protocolo
@@ -228,6 +249,11 @@ public class TrataConexao implements Runnable {
     public String getNome() {
         return nome;
     }
+    
+     public Estados getEstado() {
+        return estado ;
+    }
+ 
 
     public Integer getPontuação() {
         return pontuação;
@@ -246,9 +272,9 @@ public class TrataConexao implements Runnable {
         //inicializa a pontuação
         this.pontuação = 0;
     }
+    
     public void enviaMensagem (Mensagem msg)
-    {
-   
+    {   
         try {
             //output = new ObjectOutputStream(socket.getOutputStream());
             output.writeObject(msg);
