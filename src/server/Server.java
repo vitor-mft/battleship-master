@@ -152,6 +152,7 @@ public class Server {
         m.setParam("fimDoJogo", tabuleiro.fimDeJogo());
         m.setParam("mensagem","O jogador: "+ quemJogou.getNome() + " Jogou: X: " +x+ " Y: "+ y + " Resultado: " +tiro );
         for (TrataConexao cliente : clientes) {
+            //percorre a lista
             if (cliente.getEstado )
             
         }
