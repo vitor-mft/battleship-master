@@ -27,14 +27,14 @@ public class Tabuleiro {
     }
 
     private void geraNavios() {
-       // colocaNavio(4);
-      //  colocaNavio(3);
-       // colocaNavio(3);
-      //  colocaNavio(2);
-      //  colocaNavio(2);
-      //  colocaNavio(2);
-      //  colocaNavio(1);
-       // colocaNavio(1);
+        colocaNavio(4);
+        colocaNavio(3);
+        colocaNavio(3);
+        colocaNavio(2);
+        colocaNavio(2);
+        colocaNavio(2);
+        colocaNavio(1);
+        colocaNavio(1);
         colocaNavio(1);
         System.out.println(MostraPosicaoNavios());
 

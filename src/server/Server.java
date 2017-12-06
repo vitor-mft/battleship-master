@@ -146,42 +146,31 @@ public class Server {
         TiroEnum tiro = tabuleiro.atirar(x, y);
         System.out.println("Resultado do tiro: " + tiro);
         System.out.println(tabuleiro.desenhaTabuleiro());
-      
-         //parte de mandar msg pra todos Jogadorres
+        //parte de mandar msg pra todo
         Mensagem m = new Mensagem("STATUS");
-        m.setParam("tabuleiro","\n"+ tabuleiro.desenhaTabuleiro());
+        m.setParam("tabuleiro", tabuleiro.desenhaTabuleiro());
         m.setParam("fimDoJogo", tabuleiro.fimDeJogo());
         m.setParam("mensagem","O jogador: "+ quemJogou.getNome() + " Jogou: X: " +x+ " Y: "+ y + " Resultado: " +tiro );
-        
-        //Lista de Jogadores
         for (TrataConexao cliente : clientes) {
-            //pega um por um JOGANDO ou que estão com a VEZ de JOGAR 
-            if (cliente.getEstado().equals(Estados.JOGANDO) || cliente.getEstado().equals(Estados.VEZDEJOGAR)){
-             //Envia o m (Mensagem)
-               cliente.enviaMensagem(m);
-            }
+            if (cliente.getEstado )
             
         }
         
-        //teste de ´r o fim do jogo
-        if(tabuleiro.fimDeJogo()){
-           tabuleiro = new Tabuleiro();
-        }
         
- 
+        
         return tiro;
     }
 
-//    public String enviaStatus() {
-//                
-//      String DesenhoTabuleiro = tabuleiro.desenhaTabuleiro();
-//      return DesenhoTabuleiro;
-//       cada trataConexao 
-//       envia o tabuleiro
-//       fim do jogo
-//       ultima jogada
-//    
-//    }
+    public String enviaStatus() {
+                
+      String DesenhoTabuleiro = tabuleiro.desenhaTabuleiro();
+      return DesenhoTabuleiro;
+       //cada trataConexao 
+       //envia o tabuleiro
+       //fim do jogo
+       //ultima jogada
+    
+    }
 
     boolean eprimeiro(TrataConexao jogador) {
         
@@ -196,10 +185,6 @@ public class Server {
         fila.desenfilera();
     
     }
-
-    void tirarJogadorFila(TrataConexao aThis) {
-    fila.removeElemento(aThis);
-    }
-
+    
 
 }
